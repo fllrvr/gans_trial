@@ -9,7 +9,6 @@ import chainer.cuda
 from chainer import Variable
 from chainer import serializers
 
-sys.path.append(os.path.dirname(__file__))
 from chainer_inception_score.inception_score import inception_score, Inception
 
 
@@ -40,7 +39,8 @@ def calc_inception(gen, batchsize=100, n_ims=50000):
         _, _, _, h, w = ims.shape
         ims = ims.reshape((n_ims, 3, h, w)).astype("f")
 
-        mean, std = inception_score(model, ims)
+        with chainer.no_backprop_mode(), chainer.using_config('train', False):
+            mean, std = inception_score(model, ims)
 
         chainer.reporter.report({'inception_mean': mean, 'inception_std': std})
 
